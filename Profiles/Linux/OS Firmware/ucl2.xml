@@ -1,0 +1,242 @@
+
+<UCL>
+  <CFG>
+    <STATE name="BootStrap" dev="MX6UL" vid="15A2" pid="007D"/>
+    <STATE name="BootStrap" dev="MX6ULL" vid="15A2" pid="0080"/>
+    <STATE name="Updater"   dev="MSC" vid="066F" pid="37FF"/>
+  </CFG>
+  
+  <LIST name="Debug-LOAD_UBOT2Memory" desc="Target: Debug">
+	<CMD state="BootStrap" type="boot" body="BootStrap" file ="image-L4.9.88-uboot/uboot-%ek_name%-%ek_spec%-emmc.imx">boot: u-boot</CMD>
+	<CMD state="BootStrap" type="jump">jump</CMD>
+  </LIST>
+  
+  <LIST name="Update-UBOT&KERN-eMMC" desc="Target: Update">
+	<CMD state="BootStrap" type="boot" body="BootStrap" file ="mfgfiles-L4.9.88/uboot-%ek_name%-%ek_spec%-emmc.imx">boot: u-boot</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/mfg-zImage-myimx6a7" address="0x80800000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: zImage(mfg)</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/fsl-image-mfgtool-initramfs" address="0x83800000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: initramfs</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/%ek_name%-%ek_spec%-emmc.dtb" address="0x83000000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: dtb</CMD>
+	<CMD state="BootStrap" type="jump">jump</CMD>
+	
+	<CMD state="Updater" type="push" body="$ dd if=/dev/zero of=/dev/mmcblk1 bs=1k seek=768 conv=fsync count=8">clean environment</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-uboot/uboot-%ek_name%-%ek_spec%-emmc.imx">send: u-boot</CMD>
+	<CMD state="Updater" type="push" body="$ dd if=$FILE of=/dev/mmcblk1 bs=1k seek=1">write u-boot</CMD>
+	
+	<CMD state="Updater" type="push" body="$ mkdir -p /mnt/mmcblkxp1">mkdir /mnt/mmcblkxp1</CMD>
+	<CMD state="Updater" type="push" body="$ mount -t vfat /dev/mmcblk1p1 /mnt/mmcblkxp1">mount vfat</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-uboot/my_environment_emmc.scr">send: environment</CMD>
+	<CMD state="Updater" type="push" body="$ cp $FILE /mnt/mmcblkxp1/my_environment_emmc.scr">write environment</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-kernel/zImage-myimx6a7">send: zImage</CMD>
+	<CMD state="Updater" type="push" body="$ cp $FILE /mnt/mmcblkxp1/zImage-myimx6a7">write zImage</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-dtb/%ek_name%-%ek_spec%-emmc.dtb">send: dtb</CMD>
+	<CMD state="Updater" type="push" body="$ cp $FILE /mnt/mmcblkxp1/%ek_name%-%ek_spec%-emmc.dtb">write dtb</CMD>
+	<CMD state="Updater" type="push" body="$ umount /mnt/mmcblkxp1">umount /mnt/mmcblkxp1</CMD>
+    
+	<CMD state="Updater" type="push" body="$ echo Update Complete!">Done</CMD>
+  </LIST>
+  
+  <LIST name="Linux-4.9.88-eMMC" desc="Target OS: Linux-4.9.88(eMMC)">
+	<CMD state="BootStrap" type="boot" body="BootStrap" file ="mfgfiles-L4.9.88/uboot-%ek_name%-%ek_spec%-emmc.imx">boot: u-boot</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/mfg-zImage-myimx6a7" address="0x80800000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: zImage(mfg)</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/fsl-image-mfgtool-initramfs" address="0x83800000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: initramfs</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/%ek_name%-%ek_spec%-emmc.dtb" address="0x83000000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: dtb</CMD>
+	<CMD state="BootStrap" type="jump">jump</CMD>
+	
+	<CMD state="Updater" type="push" body="send" file="mfgfiles-L4.9.88/mksdcard-4988.sh.tar">send: mksdcard</CMD>
+	<CMD state="Updater" type="push" body="$ tar xf $FILE ">tar mksdcard</CMD>
+	<CMD state="Updater" type="push" body="$ sh mksdcard.sh /dev/mmcblk1">sh mksdcard</CMD>
+	
+	<CMD state="Updater" type="push" body="$ dd if=/dev/zero of=/dev/mmcblk1 bs=1k seek=768 conv=fsync count=8">clean environment</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-uboot/uboot-%ek_name%-%ek_spec%-emmc.imx">send: u-boot</CMD>
+	<CMD state="Updater" type="push" body="$ dd if=$FILE of=/dev/mmcblk1 bs=1k seek=1">write u-boot</CMD>
+	
+	<CMD state="Updater" type="push" body="$ mkfs.vfat /dev/mmcblk1p1">mkfs.vfat</CMD>
+	<CMD state="Updater" type="push" body="$ mkdir -p /mnt/mmcblkxp1">mkdir /mnt/mmcblkxp1</CMD>
+	<CMD state="Updater" type="push" body="$ mount -t vfat /dev/mmcblk1p1 /mnt/mmcblkxp1">mount vfat</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-uboot/my_environment_emmc.scr">send: environment</CMD>
+	<CMD state="Updater" type="push" body="$ cp $FILE /mnt/mmcblkxp1/my_environment_emmc.scr">write environment</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-kernel/zImage-myimx6a7">send: zImage</CMD>
+	<CMD state="Updater" type="push" body="$ cp $FILE /mnt/mmcblkxp1/zImage-myimx6a7">write zImage</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-dtb/%ek_name%-%ek_spec%-emmc.dtb">send: dtb</CMD>
+	<CMD state="Updater" type="push" body="$ cp $FILE /mnt/mmcblkxp1/%ek_name%-%ek_spec%-emmc.dtb">write dtb</CMD>
+	<CMD state="Updater" type="push" body="$ umount /mnt/mmcblkxp1">umount /mnt/mmcblkxp1</CMD>
+	
+	<CMD state="Updater" type="push" body="$ mkfs.ext4 -F -j /dev/mmcblk1p2">mkfs.ext</CMD>
+	<CMD state="Updater" type="push" body="$ mkdir -p /mnt/mmcblkxp2">mkdir /mnt/mmcblkxp2</CMD>
+	<CMD state="Updater" type="push" body="$ mount -t ext4 /dev/mmcblk1p2 /mnt/mmcblkxp2">mount ext</CMD>
+	
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt/mmcblkxp2" file="image-L4.9.88-rootfs/%my_rootfs%">pipe: rootfs</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: rootfs</CMD>
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt/mmcblkxp2" file="image-L4.9.88-kernel/kernel-modules-myimx6a7.tar.bz2">pipe: modules</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: modules</CMD>
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt" file="image-L4.9.88-update/L4988-rootfs-config.tar.bz2">pipe: configs</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: configs</CMD>
+	<CMD state="Updater" type="push" body="$ sh /mnt/myzr-rootfs-config /mnt/mmcblkxp2 %ek_name% %my_rootfs% normal">sh configs</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: configs</CMD>
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt/mmcblkxp2" file="image-L4.9.88-update/L4988-rootfs-update.tar.bz2">pipe: update</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: update</CMD>
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt/mmcblkxp2" file="image-L4.9.88-update/my-demo.tar.bz2">pipe: demo</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: demo</CMD>
+	<CMD state="Updater" type="push" body="$ umount /mnt/mmcblkxp2">umount /mnt/mmcblkxp2</CMD>
+	
+	<CMD state="Updater" type="push" body="$ echo Update Complete!">Done</CMD>
+  </LIST>
+  
+  <LIST name="Update-UBOT&KERN-Nand" desc="Target: Update">
+	<CMD state="BootStrap" type="boot" body="BootStrap" file ="mfgfiles-L4.9.88/uboot-%ek_name%-%ek_spec%-nand.imx">boot: u-boot</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/mfg-zImage-myimx6a7" address="0x80800000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: zImage(mfg)</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/fsl-image-mfgtool-initramfs" address="0x83800000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: initramfs</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/%ek_name%-%ek_spec%-nand.dtb" address="0x83000000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: dtb</CMD>
+	<CMD state="BootStrap" type="jump">jump</CMD>
+	
+	<CMD state="Updater" type="push" body="$ mount -t debugfs debugfs /sys/kernel/debug">mount debugfs</CMD>
+    
+	<CMD state="Updater" type="push" body="$ flash_erase /dev/mtd0 0 0">flash_erase /dev/mtd0</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-uboot/uboot-%ek_name%-%ek_spec%-nand.imx">send: u-boot</CMD>
+	<CMD state="Updater" type="push" body="$ kobs-ng init -x -v --chip_0_device_path=/dev/mtd0 $FILE">write u-boot</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-uboot/my_environment_nand.scr">send: environment</CMD>
+	<CMD state="Updater" type="push" body="$ nandwrite -p /dev/mtd0 -s 0x3c0000 -p $FILE">write environment</CMD>
+    
+	<CMD state="Updater" type="push" body="$ flash_erase /dev/mtd1 0 0">flash_erase /dev/mtd1</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-kernel/zImage-myimx6a7">send: zImage</CMD>
+	<CMD state="Updater" type="push" body="$ nandwrite -p /dev/mtd1 -p $FILE">write zImage</CMD>
+    
+	<CMD state="Updater" type="push" body="$ flash_erase /dev/mtd2 0 0">flash_erase /dev/mtd2</CMD>	
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-dtb/%ek_name%-%ek_spec%-nand.dtb">send: dtb</CMD>
+	<CMD state="Updater" type="push" body="$ nandwrite -p /dev/mtd2 -p $FILE">write dtb</CMD>	
+	
+	<CMD state="Updater" type="push" body="$ echo Update Complete!">Done</CMD>
+  </LIST>
+  
+  <LIST name="Linux-4.9.88-Nand" desc="Target OS: Linux-4.9.88(Nand)">
+	<CMD state="BootStrap" type="boot" body="BootStrap" file ="mfgfiles-L4.9.88/uboot-%ek_name%-%ek_spec%-nand.imx">boot: u-boot</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/mfg-zImage-myimx6a7" address="0x80800000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: zImage(mfg)</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/fsl-image-mfgtool-initramfs" address="0x83800000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: initramfs</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/%ek_name%-%ek_spec%-nand.dtb" address="0x83000000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: dtb</CMD>
+	<CMD state="BootStrap" type="jump">jump</CMD>
+	
+	<CMD state="Updater" type="push" body="$ mount -t debugfs debugfs /sys/kernel/debug">mount debugfs</CMD>
+    
+	<CMD state="Updater" type="push" body="$ flash_erase /dev/mtd0 0 0">flash_erase /dev/mtd0</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-uboot/uboot-%ek_name%-%ek_spec%-nand.imx">send: u-boot</CMD>
+	<CMD state="Updater" type="push" body="$ kobs-ng init -x -v --chip_0_device_path=/dev/mtd0 $FILE">write u-boot</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-uboot/my_environment_nand.scr">send: environment</CMD>
+	<CMD state="Updater" type="push" body="$ nandwrite -p /dev/mtd0 -s 0x3c0000 -p $FILE">write environment</CMD>
+    
+	<CMD state="Updater" type="push" body="$ flash_erase /dev/mtd1 0 0">flash_erase /dev/mtd1</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-kernel/zImage-myimx6a7">send: zImage</CMD>
+	<CMD state="Updater" type="push" body="$ nandwrite -p /dev/mtd1 -p $FILE">write zImage</CMD>
+    
+	<CMD state="Updater" type="push" body="$ flash_erase /dev/mtd2 0 0">flash_erase /dev/mtd2</CMD>	
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-dtb/%ek_name%-%ek_spec%-nand.dtb">send: dtb</CMD>
+	<CMD state="Updater" type="push" body="$ nandwrite -p /dev/mtd2 -p $FILE">write dtb</CMD>	
+	
+	<CMD state="Updater" type="push" body="$ flash_erase /dev/mtd3 0 0">flash_erase /dev/mtd3</CMD>
+	<CMD state="Updater" type="push" body="$ ubiformat /dev/mtd3">ubiformat /dev/mtd3</CMD>
+	<CMD state="Updater" type="push" body="$ ubiattach /dev/ubi_ctrl -m 3">ubiattach /dev/ubi_ctrl</CMD>
+	<CMD state="Updater" type="push" body="$ ubimkvol /dev/ubi0 -Nrootfs -m">ubimkvol /dev/ubi0</CMD>
+	
+	<CMD state="Updater" type="push" body="$ mkdir -p /mnt/mtd3"/>
+	<CMD state="Updater" type="push" body="$ mount -t ubifs ubi0:rootfs /mnt/mtd3"/>
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt/mtd3" file="image-L4.9.88-rootfs/%my_rootfs%">pipe: rootfs</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: rootfs</CMD>
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt/mtd3" file="image-L4.9.88-kernel/kernel-modules-myimx6a7.tar.bz2">pipe: modules</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: modules</CMD>
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt" file="image-L4.9.88-update/L4988-rootfs-config.tar.bz2">pipe: configs</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: configs</CMD>
+	<CMD state="Updater" type="push" body="$ sh /mnt/myzr-rootfs-config /mnt/mtd3 %ek_name% %my_rootfs% normal">sh configs</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: configs</CMD>
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt/mtd3" file="image-L4.9.88-update/L4988-rootfs-update.tar.bz2">pipe: update</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: update</CMD>
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt/mtd3" file="image-L4.9.88-update/my-demo.tar.bz2">pipe: demo</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: demo</CMD>
+	<CMD state="Updater" type="push" body="$ umount /mnt/mtd3">umount /mnt/mtd3</CMD> 
+	
+	<CMD state="Updater" type="push" body="$ echo Update Complete!">Done</CMD>
+  </LIST>
+  
+  <LIST name="Update-UBOT&KERN-TFCard" desc="Target: Update">
+	<CMD state="BootStrap" type="boot" body="BootStrap" file ="mfgfiles-L4.9.88/uboot-%ek_name%-%ek_spec%-emmc.imx">boot: u-boot</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/mfg-zImage-myimx6a7" address="0x80800000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: zImage(mfg)</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/fsl-image-mfgtool-initramfs" address="0x83800000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: initramfs</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/%ek_name%-%ek_spec%-emmc.dtb" address="0x83000000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: dtb</CMD>
+	<CMD state="BootStrap" type="jump">jump</CMD>
+	
+	<CMD state="Updater" type="push" body="$ dd if=/dev/zero of=/dev/mmcblk0 bs=1k seek=768 conv=fsync count=8">clean mmcblk1</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-uboot/uboot-%ek_name%-%ek_spec%-emmc.imx">send: u-boot</CMD>
+	<CMD state="Updater" type="push" body="$ dd if=$FILE of=/dev/mmcblk0 bs=1k seek=1">write u-boot</CMD>
+    
+	<CMD state="Updater" type="push" body="$ mkdir -p /mnt/mmcblkxp1">mkdir /mnt/mmcblkxp1</CMD>
+	<CMD state="Updater" type="push" body="$ mount -t vfat /dev/mmcblk0p1 /mnt/mmcblkxp1">mount vfat</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-kernel/zImage-myimx6a7">send: zImage</CMD>
+	<CMD state="Updater" type="push" body="$ cp $FILE /mnt/mmcblkxp1/zImage-myimx6a7">write zImage</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-dtb/%ek_name%-%ek_spec%-emmc.dtb">send: dtb</CMD>
+	<CMD state="Updater" type="push" body="$ cp $FILE /mnt/mmcblkxp1/%ek_name%-%ek_spec%-emmc.dtb">write dtb</CMD>
+	<CMD state="Updater" type="push" body="$ umount /mnt/mmcblkxp1">umount /mnt/mmcblkxp1</CMD>
+	
+	<CMD state="Updater" type="push" body="$ echo Update Complete!">Done</CMD>
+  </LIST>
+  
+  <LIST name="Linux-4.9.88-TFCard" desc="Target OS: Linux-4.9.88(TF-Card)">
+	<CMD state="BootStrap" type="boot" body="BootStrap" file ="mfgfiles-L4.9.88/uboot-%ek_name%-%ek_spec%-emmc.imx">boot: u-boot</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/mfg-zImage-myimx6a7" address="0x80800000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: zImage(mfg)</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/fsl-image-mfgtool-initramfs" address="0x83800000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: initramfs</CMD>
+	<CMD state="BootStrap" type="load" file="mfgfiles-L4.9.88/%ek_name%-%ek_spec%-emmc.dtb" address="0x83000000"
+		loadSection="OTH" setSection="OTH" HasFlashHeader="FALSE">load: dtb</CMD>
+	<CMD state="BootStrap" type="jump">jump</CMD>
+	
+	<CMD state="Updater" type="push" body="send" file="mfgfiles-L4.9.88/mksdcard-4988.sh.tar">send: mksdcard</CMD>
+	<CMD state="Updater" type="push" body="$ tar xf $FILE ">tar mksdcard</CMD>
+	<CMD state="Updater" type="push" body="$ sh mksdcard.sh /dev/mmcblk0">sh mksdcard</CMD>
+	
+	<CMD state="Updater" type="push" body="$ dd if=/dev/zero of=/dev/mmcblk0 bs=1k seek=768 conv=fsync count=8">clean mmcblk1</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-uboot/uboot-%ek_name%-%ek_spec%-emmc.imx">send: u-boot</CMD>
+	<CMD state="Updater" type="push" body="$ dd if=$FILE of=/dev/mmcblk0 bs=512 seek=2">write u-boot</CMD>
+	
+	<CMD state="Updater" type="push" body="$ mkfs.vfat /dev/mmcblk0p1">mkfs.vfat</CMD>
+	<CMD state="Updater" type="push" body="$ mkdir -p /mnt/mmcblkxp1">mkdir /mnt/mmcblkxp1</CMD>
+	<CMD state="Updater" type="push" body="$ mount -t vfat /dev/mmcblk0p1 /mnt/mmcblkxp1">mount vfat</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-kernel/zImage-myimx6a7">send: zImage</CMD>
+	<CMD state="Updater" type="push" body="$ cp $FILE /mnt/mmcblkxp1/zImage-myimx6a7">write zImage</CMD>
+	<CMD state="Updater" type="push" body="send" file="image-L4.9.88-dtb/%ek_name%-%ek_spec%-emmc.dtb">send: dtb</CMD>
+	<CMD state="Updater" type="push" body="$ cp $FILE /mnt/mmcblkxp1/%ek_name%-%ek_spec%-emmc.dtb">write dtb</CMD>
+	<CMD state="Updater" type="push" body="$ umount /mnt/mmcblkxp1">umount /mnt/mmcblkxp1</CMD>
+	
+	<CMD state="Updater" type="push" body="$ mkfs.ext4 -F -j /dev/mmcblk0p2">mkfs.ext</CMD>
+	<CMD state="Updater" type="push" body="$ mkdir -p /mnt/mmcblkxp2">mkdir /mnt/mmcblkxp2</CMD>
+	<CMD state="Updater" type="push" body="$ mount -t ext4 /dev/mmcblk0p2 /mnt/mmcblkxp2">mount ext</CMD>
+	
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt/mmcblkxp2" file="image-L4.9.88-rootfs/%my_rootfs%">pipe: rootfs</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: rootfs</CMD>
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt/mmcblkxp2" file="image-L4.9.88-kernel/kernel-modules-myimx6a7.tar.bz2">pipe: modules</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: modules</CMD>
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt" file="image-L4.9.88-update/L4988-rootfs-config.tar.bz2">pipe: configs</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: configs</CMD>
+	<CMD state="Updater" type="push" body="$ sh /mnt/myzr-rootfs-config /mnt/mmcblkxp2 %ek_name% %my_rootfs% normal">sh configs</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: configs</CMD>
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt/mmcblkxp2" file="image-L4.9.88-update/L4988-rootfs-update.tar.bz2">pipe: update</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: update</CMD>
+	<CMD state="Updater" type="push" body="pipe tar -jxv -C /mnt/mmcblkxp2" file="image-L4.9.88-update/my-demo.tar.bz2">pipe: demo</CMD>
+	<CMD state="Updater" type="push" body="frf">frf: demo</CMD>
+	<CMD state="Updater" type="push" body="$ umount /mnt/mmcblkxp2">umount /mnt/mmcblkxp2</CMD>
+	
+	<CMD state="Updater" type="push" body="$ echo Update Complete!">Done</CMD>
+  </LIST>
+</UCL>
