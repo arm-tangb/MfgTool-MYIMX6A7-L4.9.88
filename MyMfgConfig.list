@@ -54,13 +54,13 @@ os_support_7=Update-UBOT&KERN-TFCard
 rootfs_NUM=4
 rootfs_1=L4988-fsl-image-qt5-validation-myimx6a7.tar.bz2
 rootfs_2=L4988-fsl-image-validation-myimx6a7.tar.bz2
-rootfs_3=L4988-core-image-sato-myimx6a7.tar.bz2
+rootfs_3=L4988-fsl-image-multimedia-full-myimx6a7.tar.bz2
 rootfs_4=L4988-core-image-base-myimx6a7.tar.bz2
 
 [Linux-4.9.88-Nand]
 rootfs_NUM=4
 rootfs_1=L4988-core-image-base-myimx6a7.tar.bz2
-rootfs_2=L4988-core-image-sato-myimx6a7.tar.bz2
+rootfs_2=L4988-fsl-image-multimedia-full-myimx6a7.tar.bz2
 rootfs_3=L4988-fsl-image-validation-myimx6a7.tar.bz2
 rootfs_4=L4988-fsl-image-qt5-validation-myimx6a7.tar.bz2
 
@@ -68,7 +68,7 @@ rootfs_4=L4988-fsl-image-qt5-validation-myimx6a7.tar.bz2
 rootfs_NUM=4
 rootfs_1=L4988-fsl-image-qt5-validation-myimx6a7.tar.bz2
 rootfs_2=L4988-fsl-image-validation-myimx6a7.tar.bz2
-rootfs_3=L4988-core-image-sato-myimx6a7.tar.bz2
+rootfs_3=L4988-fsl-image-multimedia-full-myimx6a7.tar.bz2
 rootfs_4=L4988-core-image-base-myimx6a7.tar.bz2
 
 [Update-UBOT&KERN-eMMC]

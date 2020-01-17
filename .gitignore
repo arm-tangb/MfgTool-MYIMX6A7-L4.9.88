@@ -1,0 +1,4 @@
+MfgTool.log
+L*.tar.bz2
+!L4988-core-image-base-myimx6a7.tar.bz2
+!L4988-core-image-minimal-myimx6a7.tar.bz2
